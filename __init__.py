@@ -8,8 +8,14 @@ Add the following config to project.config
 plugins:
  - catchGPSPoint_plugin
  
-getgpspointlayer:
+gpspointlayer:
  - layer
+
+gpspointattr:
+ - attribute name
+
+gpspointnature:
+ - nature options (string)
  
 where layer is the layer name found in the project.
 """
