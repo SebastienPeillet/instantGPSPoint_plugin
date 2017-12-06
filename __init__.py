@@ -25,7 +25,7 @@ Install into roam install\plugins\gpsPointDef
 Add the following config to project.config
 
 plugins:
- - catchGPSPoint_plugin
+ - instantGPSPoint_plugin
  
 gpspointlayer:
  - layer
@@ -36,9 +36,9 @@ gpspointattr:
 gpspointtime: (optionnal field name for time)
  - time field name
 
-gpspointnature:
- - nature option 1 (string)
- - nature option 2 (string)
+gpspointoption:
+ - option 1 (string)
+ - option 2 (string)
  - etc
  
 where layer is the layer name found in the project.

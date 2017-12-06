@@ -73,7 +73,7 @@ class instantGPSPointToolBar(ToolBar):
     
     def get_natures_def(self) :
         settings = self.project.settings
-        self.natures_def = settings['gpspointnature']
+        self.natures_def = settings['gpspointoption']
     
     def add_buttons(self) :
         self.buttons= []
