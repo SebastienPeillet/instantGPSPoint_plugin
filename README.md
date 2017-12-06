@@ -44,7 +44,7 @@ gpspointoption:
 
 Will create this toolbar :
 
-![alt text](https://raw.githubusercontent.com/SebastienPeillet/raw/master/instantGPSPoint_plugin/master/Intramaps_example.png "toolbar_example")  
+![alt text](https://github.com/SebastienPeillet/instantGPSPoint_plugin/raw/master/Intramaps_example.png "toolbar_example")  
 
 Each button will create a new point feature with the gps coordinates and an attribute (\"Option1\", \"Option2\", etc) in the _description_ field of the point_gps layer.  
 The time will not be recorded unless you indicated also an time field like :  
