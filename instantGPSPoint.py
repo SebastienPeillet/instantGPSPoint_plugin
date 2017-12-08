@@ -29,13 +29,14 @@ from PyQt4.QtCore import Qt, QObject, pyqtSignal, QThread, QEvent
 from PyQt4.QtGui import QWidget, QGridLayout, QLabel, QListWidgetItem, QStyledItemDelegate, QFontMetricsF, QTextOption, QAction, QPushButton
 from PyQt4.uic import loadUiType
 
-from qgis.core import QgsMapLayer, QgsMapLayerRegistry, QgsFeatureRequest, QgsRectangle
+from qgis.core import QgsMapLayer, QgsMapLayerRegistry, QgsFeature, QgsFeatureRequest, QgsRectangle, QgsCoordinateReferenceSystem, QgsGeometry
 
-from roam.api import utils, gps
+from roam.api import utils
 import logging
 from roam.flickwidget import FlickCharm
 from roam.api.events import RoamEvents
 from roam.api.plugins import Page, ToolBar
+from roam.api import GPS
 
 logger = logging.getLogger("roam")
 # widget, base = loadUiType(resolve("gpsPointDef.ui"))
@@ -45,8 +46,10 @@ class instantGPSPointToolBar(ToolBar):
     def __init__(self, api, parent=None):
         super(instantGPSPointToolBar, self).__init__(parent)
         self.mapwindow = api.mapwindow
-        self.gpsService = gps.GPSService()
-        self.gpsService.crs = 2972
+        self.gpsService = GPS
+        # logger.info(str(self.gpsService))
+        self.gpsService.connectGPS('')
+        self.gpsService.crs = QgsCoordinateReferenceSystem(2972)
 
     def unload(self):
         pass
@@ -84,24 +87,32 @@ class instantGPSPointToolBar(ToolBar):
             self.buttons[i].triggered[()].connect(lambda i=i: self.add_record(self.buttons[i].text()))
         
     def add_record(self, nature):
+        logger.info(str(self.gpsService.postion.x())+"x"+str(self.gpsService.postion.y())+"y")
         if self.gpsService.isConnected == True :
-            ft = QgsFeature()
+            ft = QgsFeature(self.w_layer.pendingFields())
             point = self.gpsService.postion
-            ft.setGeometry(point)
+            ft.setGeometry(QgsGeometry.fromPoint(point))
+            
+            index = self.w_layer.fieldNameIndex('id')
+            id_max = 0
+            for feat in self.w_layer.getFeatures():
+                id = feat.attribute('id')
+                id_max = max(id_max, int(id))
+
+            new_id = int(id_max) + 1
+            ft.setAttribute(index, new_id)       
+            
+            index = self.w_layer.fieldNameIndex(self.w_layer_nat_field)
+            ft.setAttribute(index, nature)
+            
+            if self.w_layer_time_field != None :
+                index = self.w_layer.fieldNameIndex(self.w_layer_time_field)
+                ft.setAttribute(index, time.strftime("%d-%m-%Y-%H:%M:%S",time.localtime()))
             
             self.w_layer.startEditing()
             pr = self.w_layer.dataProvider()
             pr.addFeatures([ft])
             
-            index = self.w_layer.fieldNameIndex('id')
-            self.w_layer.changeAttributeValue(ft.id(), index, ft.id())           
-            
-            index = self.w_layer.fieldNameIndex(self.w_layer_nat_field)
-            self.w_layer.changeAttributeValue(ft.id(), index, nature)
-            
-            if self.w_layer_time_field != None :
-                index = self.w_layer.fieldNameIndex(self.w_layer_time_field)
-                self.w_layer.changeAttributeValue(ft.id(), index, time.strftime("%d-%m-%Y-%H:%M:%S",time.localtime()))
             self.w_layer.commitChanges()
             ft = None
             
